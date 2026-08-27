@@ -98,9 +98,15 @@
 
 <script>
     window.Telegram.WebApp.ready();
-    const AdController = window.Adsgram.init({ blockId: "44859" });
+    
+    let AdController;
+    try {
+        AdController = window.Adsgram.init({ blockId: "44859" });
+    } catch(e) {
+        console.log("Adsgram Init Error", e);
+    }
 
-    // কুইজ ডাটাবেজ (এখানে বহু প্রশ্ন ও ৪টি করে অপশন দেওয়া আছে)
+    // কুইজ ডাটাবেজ
     const quizData = [
         { question: "বাংলাদেশের রাজধানী কোথায়?", options: ["চট্টগ্রাম", "ঢাকা", "সিলেট", "খুলনা"], correct: 1 },
         { question: "বাংলাদেশের জাতীয় ফল কোনটি?", options: ["আম", "লিচু", "কাঁঠাল", "কলা"], correct: 2 },
@@ -124,14 +130,14 @@
         { question: "বিশ্বের সবচেয়ে উঁচু পর্বতশৃঙ্গ কোনটি?", options: ["কে-টু", "মাউন্ট এভারেস্ট", "কাঞ্চনজঙ্ঘা", "আল্পস"], correct: 1 },
         { question: "কোন ভিটামিনের অভাবে রাতকানা রোগ হয়?", options: ["ভিটামিন B", "ভিটামিন C", "ভিটামিন A", "ভিটামিন D"], correct: 2 },
         { question: "নোবেল পুরস্কার কয়টি বিষয়ে দেওয়া হয়?", options: ["৫টি", "৬টি", "৭টি", "৪টি"], correct: 1 },
-        { question: "ফেসবুকের প্রতিষ্ঠাতা কে?", options: ["বিল গেটস", "মার্ক জাকারবার্গ", " স্টিভ জবস", "এলন মাস্ক"], correct: 1 },
+        { question: "ফেসবুকের প্রতিষ্ঠাতা কে?", options: ["বিল গেটস", "মার্ক জাকারবার্গ", "স্টিভ জবস", "এলন মাস্ক"], correct: 1 },
         { question: "বাংলাদেশের প্রথম রাষ্ট্রপতি কে ছিলেন?", options: ["শেখ মুজিবুর রহমান", "জিয়াউর রহমান", "তাঁজউদ্দিন আহমেদ", "আব্দুল হামিদ"], correct: 0 },
         { question: "কাজী নজরুল ইসলামকে কি কবি বলা হয়?", options: ["পল্লীকবি", "বিদ্রোহী কবি", "রূপসী বাংলার কবি", "জসীমউদ্দীন"], correct: 1 },
         { question: "বিশ্বের বড় মরুভূমি কোনটি?", options: ["থার", "গোবি", "সাহারা", "আটাকামা"], correct: 2 },
         { question: "কোন দেশকে উদীয়মান সূর্যের দেশ বলা হয়?", options: ["চীন", "জাপান", "নরওয়ে", "থাইল্যান্ড"], correct: 1 },
         { question: "পৃথিবীর ফুসফুস বলা হয় কোন বনকে?", options: ["সুন্দরবন", "আমাজন", "তৈগা", "ব্ল্যাক ফরেস্ট"], correct: 1 },
         { question: "ক্রিকেট খেলার জন্ম কোন দেশে?", options: ["অস্ট্রেলিয়া", "ভারত", "ইংল্যান্ড", "ওয়েস্ট ইন্ডিজ"], correct: 2 },
-        { question: "টেলিফোনের আবিষ্কারক কে?", options: ["এডিসন", "গ্রাহাম বেল", "মার Marconi", "নিউটন"], correct: 1 }
+        { question: "টেলিফোনের আবিষ্কারক কে?", options: ["এডিসন", "গ্রাহাম বেল", "মারকোনি", "নিউটন"], correct: 1 }
     ];
 
     let currentQuestionIndex = 0;
@@ -169,31 +175,30 @@
             alert("ভুল উত্তর! সঠিক উত্তর ছিল: " + currentQuiz.options[currentQuiz.correct]);
         }
 
-        // কুইজ প্রতি ৫টি পর পর এড দেখার জন্য পপআপ দেওয়া (অ্যাডের ইনকাম বাড়াতে)
         if ((currentQuestionIndex + 1) % 5 === 0) {
             showAd();
         }
 
         currentQuestionIndex++;
         
-        // ২০০+ প্রশ্ন বারবার ঘুরিয়ে আনার জন্য লুপ লজিক
         if (currentQuestionIndex < quizData.length) {
             loadQuiz();
         } else {
-            // প্রশ্ন শেষ হলে আবার প্রথম থেকে র্যান্ডমলি ঘুরবে
             currentQuestionIndex = 0;
             loadQuiz();
         }
     }
 
     function showAd() {
-        AdController.show().then((result) => {
-            score += 50;
-            scoreEl.innerText = score;
-            alert("বিজ্ঞাপন সফলভাবে দেখেছেন! ৫০ পয়েন্ট যুক্ত হলো।");
-        }).catch((result) => {
-            console.log("Ad Error or closed: ", result);
-        });
+        if (AdController) {
+            AdController.show().then((result) => {
+                score += 50;
+                scoreEl.innerText = score;
+                alert("বিজ্ঞাপন সফলভাবে দেখেছেন! ৫০ পয়েন্ট যুক্ত হলো।");
+            }).catch((result) => {
+                console.log("Ad Error or closed: ", result);
+            });
+        }
     }
 
     loadQuiz();
