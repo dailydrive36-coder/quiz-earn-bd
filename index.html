@@ -4,96 +4,118 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuizEarn BD</title>
-    <!-- Telegram Web App SDK -->
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Adsgram SDK -->
+    <!-- Adsgram SDK Integration -->
     <script src="https://sad.adsgram.ai/js/sad-index.js"></script>
     <style>
-        html, body {
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
             background-color: #f4f6f9 !important;
             color: #222222 !important;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 12px;
-            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
         }
 
         .card {
             background: #ffffff !important;
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            max-width: 420px;
-            margin: 0 auto;
-            border: 1px solid #e1e8ed;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid #e1e8ed;
         }
 
         h2 {
             margin-top: 0;
-            color: #1a1a1a;
-            font-size: 22px;
+            color: #0d6efd;
+            font-size: 24px;
             text-align: center;
+            font-weight: bold;
         }
 
         .balance-box {
-            background: #eef7ff !important;
-            border: 1px solid #bce0fd;
-            color: #0056b3 !important;
+            background: #e7f5ff !important;
+            border: 2px solid #74c0fc;
+            color: #1c7ed6 !important;
             padding: 12px;
             border-radius: 10px;
             font-size: 18px;
-            font-weight: 700;
+            font-weight: bold;
             margin-bottom: 20px;
             text-align: center;
         }
 
         .quiz-title {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
+            font-size: 15px;
+            color: #d63384;
+            font-weight: bold;
+            margin-bottom: 6px;
         }
 
         .question-text {
             font-size: 18px;
-            font-weight: 600;
-            color: #111;
+            font-weight: bold;
+            color: #212529 !important;
             margin-bottom: 15px;
+            background: #fff9db;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 5px solid #fcc419;
         }
 
         .btn {
-            background-color: #28a745;
-            color: #ffffff !important;
             border: none;
-            padding: 12px;
-            font-size: 15px;
-            border-radius: 8px;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 10px;
             cursor: pointer;
             width: 100%;
-            margin: 6px 0;
-            font-weight: 600;
+            margin: 8px 0;
+            font-weight: bold;
+            display: block;
+            text-align: center;
+            transition: transform 0.1s;
+        }
+        .btn:active {
+            transform: scale(0.98);
         }
 
+        /* কুইজের আকর্ষণীয় কালারফুল উত্তর বাটন */
         .btn-quiz-opt {
-            background-color: #ffffff !important;
-            color: #333333 !important;
-            border: 1px solid #cccccc;
-            text-align: center;
-            padding: 12px;
+            background-color: #e7f5ff !important;
+            color: #1971c2 !important;
+            border: 2px solid #4dabf7 !important;
+            font-size: 17px;
+        }
+
+        /* বোনাস ভিডিও বাটন (উজ্জ্বল কমলা) */
+        .btn-bonus {
+            background: linear-gradient(135deg, #ff922b, #fd7e14) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(253, 126, 20, 0.3);
             font-size: 16px;
         }
 
-        .btn-bonus {
-            background-color: #ff9800 !important;
-        }
-
+        /* উইথড্র বাটন (উজ্জ্বল সবুজ) */
         .btn-withdraw {
-            background-color: #007bff !important;
+            background: linear-gradient(135deg, #40c057, #2b8a3e) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(43, 138, 62, 0.3);
+            font-size: 16px;
         }
 
         hr {
             border: 0;
             height: 1px;
-            background: #e8e8e8;
+            background: #e9ecef;
             margin: 20px 0;
         }
 
@@ -101,17 +123,16 @@
             width: 100%;
             padding: 12px;
             margin: 6px 0 12px 0;
-            border: 1px solid #ccc;
+            border: 2px solid #ced4da;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 15px;
             background-color: #ffffff !important;
             color: #333333 !important;
-            box-sizing: border-box;
         }
 
         .sub-text {
-            font-size: 12px;
-            color: #777;
+            font-size: 13px;
+            color: #6c757d;
             margin-top: -5px;
             margin-bottom: 10px;
         }
@@ -135,18 +156,18 @@
 
     <hr>
 
-    <!-- ভিডিও বোনাস -->
+    <!-- বোনাস সেকশন -->
     <div>
-        <h4 style="margin: 0 0 5px 0;">বোনাস টাস্ক</h4>
+        <h4 style="margin: 0 0 5px 0; color: #e8590c;">বিশেষ বোনাস টাস্ক</h4>
         <div class="sub-text">অ্যাড দেখে বোনাস পয়েন্ট অর্জন করুন</div>
         <button class="btn btn-bonus" onclick="showBonusAd()">২০ সেকেন্ডের ভিডিও (১৫ পয়েন্ট)</button>
     </div>
 
     <hr>
 
-    <!-- উইথড্র অপশন -->
+    <!-- উইথড্র সেকশন -->
     <div>
-        <h4 style="margin: 0 0 5px 0;">টাকা উত্তোলন</h4>
+        <h4 style="margin: 0 0 5px 0; color: #2b8a3e;">টাকা উত্তোলন</h4>
         <div class="sub-text">সর্বনিম্ন উইথড্র: ৩,০০০ পয়েন্ট = ৫০ টাকা</div>
         
         <select id="method">
@@ -162,11 +183,9 @@
 <script>
     let points = 0;
     let currentQuizIndex = 0;
+    let AdController = null;
 
-    // Adsgram Controller Integration
-    const AdController = window.Adsgram.init({ blockId: "44878" });
-
-    // ১০টি নির্দিষ্ট কুইজ (প্রতিটিতে মাত্র ২টি করে অপশন)
+    // ১০টি নির্দিষ্ট প্রশ্ন ও ২টি করে অপশন
     const quizzes = [
         { q: "১. আমাদের দেশের নাম কি?", options: ["বাংলাদেশ", "ভারত"], ans: 0 },
         { q: "২. বাংলাদেশের রাজধানী কোনটি?", options: ["ঢাকা", "কলকাতা"], ans: 0 },
@@ -182,7 +201,7 @@
 
     function loadQuiz() {
         if (currentQuizIndex >= quizzes.length) {
-            currentQuizIndex = 0; // ১০টি শেষ হলে আবার ১ নম্বর থেকে শুরু হবে
+            currentQuizIndex = 0;
         }
         
         const qData = quizzes[currentQuizIndex];
@@ -196,7 +215,7 @@
             const btn = document.createElement('button');
             btn.className = 'btn btn-quiz-opt';
             btn.innerText = opt;
-            btn.onclick = () => checkAnswer(index);
+            btn.onclick = function() { checkAnswer(index); };
             optionsDiv.appendChild(btn);
         });
     }
@@ -212,24 +231,37 @@
             alert('ভুল উত্তর! কোনো পয়েন্ট যোগ হয়নি।');
         }
 
-        // উত্তর সঠিক বা ভুল যা-ই হোক, অ্যাড চালু হবে
-        AdController.show().then(() => {
-            currentQuizIndex++;
-            loadQuiz();
-        }).catch(() => {
+        // উত্তর সঠিক বা ভুল যা-ই হোক, Adsgram ভিডিও শো হবে
+        playAdsgramAd(() => {
             currentQuizIndex++;
             loadQuiz();
         });
     }
 
+    function playAdsgramAd(callback) {
+        if (AdController) {
+            AdController.show().then(() => {
+                if (callback) callback();
+            }).catch((err) => {
+                if (callback) callback();
+            });
+        } else {
+            if (callback) callback();
+        }
+    }
+
     function showBonusAd() {
-        AdController.show().then(() => {
-            points += 15;
-            document.getElementById('user-points').innerText = points;
-            alert('ধন্যবাদ! ভিডিও দেখার জন্য ১৫ পয়েন্ট যোগ হয়েছে।');
-        }).catch(() => {
-            alert('ভিডিওটি সম্পূর্ণ দেখতে হবে।');
-        });
+        if (AdController) {
+            AdController.show().then(() => {
+                points += 15;
+                document.getElementById('user-points').innerText = points;
+                alert('ধন্যবাদ! ২০ সেকেন্ডের ভিডিও দেখার জন্য ১৫ পয়েন্ট যোগ হয়েছে।');
+            }).catch(() => {
+                alert('ভিডিওটি সম্পূর্ণ দেখতে হবে।');
+            });
+        } else {
+            alert('বিজ্ঞাপন এই মুহূর্তে লোড হয়নি, একটু পর চেষ্টা করুন।');
+        }
     }
 
     function withdraw() {
@@ -250,14 +282,19 @@
         document.getElementById('user-points').innerText = points;
     }
 
-    // স্ক্রিন লোড হওয়ামাত্র কুইজ চালু করার জন্য
-    document.addEventListener("DOMContentLoaded", function() {
+    // অ্যাপ লোড হওয়ার সাথে সাথে কুইজ ও বিজ্ঞাপন তৈরি হবে
+    window.onload = function() {
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
         }
+
+        if (window.Adsgram) {
+            AdController = window.Adsgram.init({ blockId: "44878" });
+        }
+
         loadQuiz();
-    });
+    };
 </script>
 </body>
-    </html>
+    </html>          
