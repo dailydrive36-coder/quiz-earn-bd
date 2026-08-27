@@ -14,6 +14,7 @@
             text-align: center;
             padding: 20px;
             margin: 0;
+            user-select: none;
         }
         .container {
             max-width: 400px;
@@ -30,6 +31,7 @@
             background: #17212b;
             padding: 10px;
             border-radius: 8px;
+            border: 1px solid #2b5278;
         }
         .question-box {
             font-size: 18px;
@@ -38,6 +40,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #17212b;
+            padding: 10px;
+            border-radius: 8px;
         }
         .options-grid {
             display: flex;
@@ -53,7 +58,10 @@
             font-size: 15px;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .option-btn:active {
+            transform: scale(0.98);
         }
         .option-btn:hover {
             background-color: #3b6e9e;
@@ -69,6 +77,7 @@
             cursor: pointer;
             width: 100%;
             margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
         .ad-btn:hover {
             background-color: #00aaff;
@@ -78,9 +87,10 @@
             padding: 15px;
             border-radius: 10px;
             margin-top: 15px;
+            border: 1px solid #2b5278;
         }
         .withdraw-section input {
-            width: 90%;
+            width: 85%;
             padding: 10px;
             margin: 8px 0;
             border-radius: 6px;
@@ -88,6 +98,7 @@
             background: #24303f;
             color: #fff;
             text-align: center;
+            font-size: 15px;
         }
         .withdraw-btn-group {
             display: flex;
@@ -105,14 +116,30 @@
         }
         .bkash-btn { background-color: #e2136e; }
         .nagad-btn { background-color: #f7921e; }
-        .ad-notice {
+
+        /* পপআপ টাইমার স্টাইল */
+        .modal-overlay {
             display: none;
-            background: #0088cc;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            font-size: 14px;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-box {
+            background: #24303f;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 300px;
+            width: 80%;
+            box-shadow: 0 0 15px rgba(0, 136, 204, 0.5);
+        }
+        .timer-text {
+            font-size: 32px;
+            color: #00aaff;
+            font-weight: bold;
+            margin: 15px 0;
         }
     </style>
 </head>
@@ -125,17 +152,14 @@
         পয়েন্ট: <span id="score">0</span> | কুইজ: <span id="quiz-count">1</span>
     </div>
 
-    <div id="ad-notice" class="ad-notice">
-        বিজ্ঞাপন লোড হচ্ছে... ৫ সেকেন্ড অপেক্ষা করুন!
-    </div>
-
     <div class="question-box" id="question">
         প্রশ্ন লোড হচ্ছে...
     </div>
 
     <div class="options-grid" id="options-container"></div>
 
-    <button class="ad-btn" onclick="openMonetagAd(50)">বিজ্ঞাপন দেখুন (৫০ পয়েন্ট)</button>
+    <!-- ৫০ পয়েন্টের বিজ্ঞাপনের জন্য ১৫ সেকেন্ডের কাউন্টডাউন -->
+    <button class="ad-btn" onclick="startAdTimer(15, 50, 'স্পেশাল রিওয়ার্ড অ্যাড 🎁', 'বিজ্ঞাপনটি ১৫ সেকেন্ড দেখুন এবং ৫০ পয়েন্ট পান!')">বিজ্ঞাপন দেখুন (৫০ পয়েন্ট)</button>
 
     <!-- উইথড্র সেকশন -->
     <div class="withdraw-section">
@@ -149,12 +173,21 @@
     </div>
 </div>
 
+<!-- সেফ পপআপ টাইমার -->
+<div class="modal-overlay" id="adModal">
+    <div class="modal-box">
+        <h3 id="modal-title">বিজ্ঞাপন লোড হচ্ছে...</h3>
+        <p id="modal-desc" style="font-size: 14px; color: #ccc;">অপেক্ষা করুন</p>
+        <div class="timer-text" id="countdown">5</div>
+    </div>
+</div>
+
 <script>
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand(); // টেলিগ্রাম ফুলস্ক্রিন করা
     }
 
-    // আপনার Monetag ডিরেক্ট লিংক
     const MONETAG_DIRECT_LINK = "https://omg10.com/4/11670353";
 
     const quizData = [
@@ -164,7 +197,7 @@
         { question: "বাংলাদেশের সবচেয়ে ছোট প্রশাসনিক বিভাগ কোনটি?", options: ["ময়মনসিংহ", "সিলেট"], correct: 0 },
         { question: "বাংলাদেশ কত সালে জাতিসংঘের সদস্যপদ লাভ করে?", options: ["১৯৭৪ সালে", "১৯৭২ সালে"], correct: 0 },
         { question: "মানবদেহের বৃহত্তম অঙ্গ কোনটি?", options: ["ত্বক (Skin)", "যকৃৎ (Liver)"], correct: 0 },
-        { question: "নোবেল পুরস্কার প্রদান শুরু হয় কত সাল থেকে?", options: ["১৯০১ সাল", "১৯০৫ সাল"], correct: 0 },
+        { question: "নোবেল पुरस्कार প্রদান শুরু হয় কত সাল থেকে?", options: ["১৯০১ সাল", "১৯০৫ সাল"], correct: 0 },
         { question: "মহাকাশে পাঠানো প্রথম কৃত্রিম উপগ্রহ কোনটি?", options: ["স্পুটনিক-১", "অ্যাপোলো-১১"], correct: 0 },
         { question: "কম্পিউটারের অস্থায়ী মেমোরি (Temporary Memory) কোনটি?", options: ["RAM", "ROM"], correct: 0 },
         { question: "সূর্যের আলোর কোন রশ্মি থেকে ভিটামিন ডি পাওয়া যায়?", options: ["অতিবেগুনি রশ্মি (Ultraviolet)", "ইনফ্রারেড রশ্মি"], correct: 0 }
@@ -177,7 +210,10 @@
     const optionsContainer = document.getElementById('options-container');
     const scoreEl = document.getElementById('score');
     const quizCountEl = document.getElementById('quiz-count');
-    const adNotice = document.getElementById('ad-notice');
+    const adModal = document.getElementById('adModal');
+    const countdownEl = document.getElementById('countdown');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
 
     function loadQuiz() {
         optionsContainer.innerHTML = '';
@@ -201,21 +237,38 @@
         if (selectedIndex === currentQuiz.correct) {
             score += 10;
             scoreEl.innerText = score;
-            
-            // ৫ সেকেন্ডের অটোমেটিক বিজ্ঞাপন প্রসেস
-            adNotice.style.display = 'block';
-            setTimeout(() => {
-                adNotice.style.display = 'none';
-                openMonetagAd(0); // বিজ্ঞাপন পেজে রিডাইরেক্ট
-            }, 5000);
-
-            alert("সঠিক উত্তর! ১০ পয়েন্ট যোগ হয়েছে। ৫ সেকেন্ড পর বিজ্ঞাপন আসছে...");
+            // সঠিক উত্তরে ৫ সেকেন্ডের সেফ পপআপ
+            startAdTimer(5, 0, 'সঠিক উত্তর! 🎉', 'বিজ্ঞাপনটি দেখতে ৫ সেকেন্ড অপেক্ষা করুন...');
         } else {
             alert("ভুল উত্তর! সঠিক উত্তর ছিল: " + currentQuiz.options[currentQuiz.correct]);
+            nextQuestion();
         }
+    }
 
+    // কাউন্টডাউন ও বিজ্ঞাপন প্রদর্শন লজিক
+    function startAdTimer(seconds, rewardPoints, titleText, descText) {
+        let timeLeft = seconds;
+        countdownEl.innerText = timeLeft;
+        modalTitle.innerText = titleText;
+        modalDesc.innerText = descText;
+        adModal.style.display = 'flex';
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownEl.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                adModal.style.display = 'none';
+                triggerMonetagAd(rewardPoints);
+                if(rewardPoints === 0) {
+                    nextQuestion();
+                }
+            }
+        }, 1000);
+    }
+
+    function nextQuestion() {
         currentQuestionIndex++;
-        
         if (currentQuestionIndex < quizData.length) {
             loadQuiz();
         } else {
@@ -224,8 +277,8 @@
         }
     }
 
-    // Monetag বিজ্ঞাপনে নিয়ে যাওয়ার ফাংশন
-    function openMonetagAd(bonusPoints = 0) {
+    // নিরাপদ মনিট্যাগ লিংক ওপেনিং
+    function triggerMonetagAd(bonusPoints = 0) {
         if(bonusPoints > 0) {
             score += bonusPoints;
             scoreEl.innerText = score;
@@ -233,12 +286,12 @@
 
         try {
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-                window.Telegram.WebApp.openLink(MONETAG_DIRECT_LINK, { try_instant_view: false });
+                window.Telegram.WebApp.openLink(MONETAG_DIRECT_LINK);
             } else {
                 window.open(MONETAG_DIRECT_LINK, '_blank');
             }
         } catch(e) {
-            window.location.href = MONETAG_DIRECT_LINK;
+            console.log("Ad Direct Link Error", e);
         }
     }
 
@@ -268,4 +321,4 @@
 </script>
 
 </body>
-</html>
+            </html>
