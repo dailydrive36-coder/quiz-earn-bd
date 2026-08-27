@@ -68,9 +68,51 @@
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
+            margin-bottom: 15px;
         }
         .ad-btn:hover {
             background-color: #00aaff;
+        }
+        .withdraw-section {
+            background-color: #17212b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        .withdraw-section input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #2b5278;
+            background: #24303f;
+            color: #fff;
+            text-align: center;
+        }
+        .withdraw-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .withdraw-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .bkash-btn { background-color: #e2136e; }
+        .nagad-btn { background-color: #f7921e; }
+        .ad-notice {
+            display: none;
+            background: #0088cc;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -83,13 +125,28 @@
         পয়েন্ট: <span id="score">0</span> | কুইজ: <span id="quiz-count">1</span>
     </div>
 
+    <div id="ad-notice" class="ad-notice">
+        বিজ্ঞাপন লোড হচ্ছে... ৫ সেকেন্ড অপেক্ষা করুন!
+    </div>
+
     <div class="question-box" id="question">
         প্রশ্ন লোড হচ্ছে...
     </div>
 
     <div class="options-grid" id="options-container"></div>
 
-    <button class="ad-btn" onclick="openMonetagAd()">বিজ্ঞাপন দেখুন (৫০ পয়েন্ট)</button>
+    <button class="ad-btn" onclick="openMonetagAd(50)">বিজ্ঞাপন দেখুন (৫০ পয়েন্ট)</button>
+
+    <!-- উইথড্র সেকশন -->
+    <div class="withdraw-section">
+        <h3>টাকা উত্তোলন (Withdraw)</h3>
+        <p style="font-size: 12px; color: #aaa;">সর্বনিম্ন ২০০০ পয়েন্ট = ১০০ টাকা</p>
+        <input type="number" id="phone-number" placeholder="মোবাইল নম্বর লিখুন">
+        <div class="withdraw-btn-group">
+            <button class="withdraw-btn bkash-btn" onclick="requestWithdraw('bKash')">বিকাশ (bKash)</button>
+            <button class="withdraw-btn nagad-btn" onclick="requestWithdraw('Nagad')">নগদ (Nagad)</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -120,6 +177,7 @@
     const optionsContainer = document.getElementById('options-container');
     const scoreEl = document.getElementById('score');
     const quizCountEl = document.getElementById('quiz-count');
+    const adNotice = document.getElementById('ad-notice');
 
     function loadQuiz() {
         optionsContainer.innerHTML = '';
@@ -143,15 +201,17 @@
         if (selectedIndex === currentQuiz.correct) {
             score += 10;
             scoreEl.innerText = score;
-            alert("সঠিক উত্তর! ১০ পয়েন্ট যোগ হয়েছে।");
+            
+            // ৫ সেকেন্ডের অটোমেটিক বিজ্ঞাপন প্রসেস
+            adNotice.style.display = 'block';
+            setTimeout(() => {
+                adNotice.style.display = 'none';
+                openMonetagAd(0); // বিজ্ঞাপন পেজে রিডাইরেক্ট
+            }, 5000);
+
+            alert("সঠিক উত্তর! ১০ পয়েন্ট যোগ হয়েছে। ৫ সেকেন্ড পর বিজ্ঞাপন আসছে...");
         } else {
             alert("ভুল উত্তর! সঠিক উত্তর ছিল: " + currentQuiz.options[currentQuiz.correct]);
-        }
-
-        // প্রতি ৫টি কুইজ পর পর স্বয়ংক্রিয়ভাবে Monetag অ্যাড খুলবে
-        if ((currentQuestionIndex + 1) % 5 === 0) {
-            alert("অফার সম্পন্ন করতে বিজ্ঞাপনটি দেখুন এবং ৫০ পয়েন্ট পান!");
-            openMonetagAd();
         }
 
         currentQuestionIndex++;
@@ -164,15 +224,42 @@
         }
     }
 
-    // Monetag Direct Link অন করার ফাংশন
-    function openMonetagAd() {
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-            window.Telegram.WebApp.openLink(MONETAG_DIRECT_LINK);
-        } else {
-            window.open(MONETAG_DIRECT_LINK, '_blank');
+    // Monetag বিজ্ঞাপনে নিয়ে যাওয়ার ফাংশন
+    function openMonetagAd(bonusPoints = 0) {
+        if(bonusPoints > 0) {
+            score += bonusPoints;
+            scoreEl.innerText = score;
         }
-        score += 50;
+
+        try {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+                window.Telegram.WebApp.openLink(MONETAG_DIRECT_LINK, { try_instant_view: false });
+            } else {
+                window.open(MONETAG_DIRECT_LINK, '_blank');
+            }
+        } catch(e) {
+            window.location.href = MONETAG_DIRECT_LINK;
+        }
+    }
+
+    // ২০০০ পয়েন্ট উইথড্র লজিক
+    function requestWithdraw(method) {
+        const phone = document.getElementById('phone-number').value;
+
+        if (!phone || phone.length < 11) {
+            alert("দয়া করে ১১ ডিজিটের সঠিক মোবাইল নম্বর লিখুন!");
+            return;
+        }
+
+        if (score < 2000) {
+            alert("আপনার পর্যাপ্ত পয়েন্ট নেই! সর্বনিম্ন ২০০০ পয়েন্ট লাগবে।");
+            return;
+        }
+
+        score -= 2000;
         scoreEl.innerText = score;
+        alert(`আপনার ${method} উইথড্র রিকোয়েস্ট সফল হয়েছে!\nনম্বর: ${phone}\n২০০০ পয়েন্ট কেটে নেয়া হয়েছে।`);
+        document.getElementById('phone-number').value = '';
     }
 
     window.onload = function() {
