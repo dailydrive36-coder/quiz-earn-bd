@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuizEarn BD</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; text-align: center; padding: 15px; margin: 0; }
         .card { background: #1e293b; padding: 20px; border-radius: 12px; max-width: 400px; margin: 10px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
@@ -124,6 +126,15 @@
         }
 
         loadQuestion();
+        const AdController = window.Adsgram.init({ blockId: "44859" });
+
+function showAd() {
+    AdController.show().then((result) => {
+        alert("বিজ্ঞাপন দেখা সম্পন্ন হয়েছে! পয়েন্ট যোগ করা হলো।");
+    }).catch((error) => {
+        console.log("Ad error or closed:", error);
+    });
+}
     </script>
 </body>
 </html>
