@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -6,8 +6,6 @@
     <title>Quiz Earn BD</title>
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Adsgram SDK -->
-    <script src="https://sad.adsgram.ai/js/sad-index.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -89,75 +87,30 @@
         প্রশ্ন লোড হচ্ছে...
     </div>
 
-    <div class="options-grid" id="options-container">
-        <!-- অপশনগুলো অটো আসবে -->
-    </div>
+    <div class="options-grid" id="options-container"></div>
 
-    <button class="ad-btn" onclick="showAd()">বিজ্ঞাপন দেখে ৫০ পয়েন্ট পান</button>
+    <button class="ad-btn" onclick="openMonetagAd()">বিজ্ঞাপন দেখুন (৫০ পয়েন্ট)</button>
 </div>
 
 <script>
-    window.Telegram.WebApp.ready();
-    
-    let AdController;
-    try {
-        AdController = window.Adsgram.init({ blockId: "44859" });
-    } catch(e) {
-        console.log("Adsgram Init Error", e);
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
     }
 
-    // ১০টি মানসম্মত মানসম্পন্ন কুইজ (প্রতিটিতে ২টি করে অপশন)
+    // আপনার Monetag ডিরেক্ট লিংক
+    const MONETAG_DIRECT_LINK = "https://omg10.com/4/11670353";
+
     const quizData = [
-        {
-            "question": "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?",
-            "options": ["সেন্ট মার্টিন", "মহেশখালী"],
-            "correct": 0
-        },
-        {
-            "question": "সংবিধান অনুযায়ী বাংলাদেশের আইনসভার নাম কি?",
-            "options": ["জাতীয় সংসদ", "গণপরিষদ"],
-            "correct": 0
-        },
-        {
-            "question": "বিশ্বের সবচেয়ে দীর্ঘতম প্রাকৃতিক সমুদ্র সৈকত কোনটি?",
-            "options": ["কক্সবাজার", "কুয়াকাটা"],
-            "correct": 0
-        },
-        {
-            "question": "বাংলাদেশের সবচেয়ে ছোট প্রশাসনিক বিভাগ কোনটি?",
-            "options": ["ময়মনসিংহ", "সিলেট"],
-            "correct": 0
-        },
-        {
-            "question": "বাংলাদেশ কত সালে জাতিসংঘের সদস্যপদ লাভ করে?",
-            "options": ["১৯৭৪ সালে", "১৯৭২ সালে"],
-            "correct": 0
-        },
-        {
-            "question": "মানবদেহের বৃহত্তম অঙ্গ কোনটি?",
-            "options": ["ত্বক (Skin)", "যকৃৎ (Liver)"],
-            "correct": 0
-        },
-        {
-            "question": "নোবেল পুরস্কার প্রদান শুরু হয় কত সাল থেকে?",
-            "options": ["১৯০১ সাল", "১৯০৫ সাল"],
-            "correct": 0
-        },
-        {
-            "question": "মহাকাশে পাঠানো প্রথম কৃত্রিম উপগ্রহ কোনটি?",
-            "options": ["স্পুটনিক-১", "অ্যাপোলো-১১"],
-            "correct": 0
-        },
-        {
-            "question": "কম্পিউটারের অস্থায়ী মেমোরি (Temporary Memory) কোনটি?",
-            "options": ["RAM", "ROM"],
-            "correct": 0
-        },
-        {
-            "question": "সূর্যের আলোর কোন রশ্মি থেকে ভিটামিন ডি পাওয়া যায়?",
-            "options": ["অতিবেগুনি রশ্মি (Ultraviolet)", "ইনফ্রারেড রশ্মি"],
-            "correct": 0
-        }
+        { question: "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?", options: ["সেন্ট মার্টিন", "মহেশখালী"], correct: 0 },
+        { question: "সংবিধান অনুযায়ী বাংলাদেশের আইনসভার নাম কি?", options: ["জাতীয় সংসদ", "গণপরিষদ"], correct: 0 },
+        { question: "বিশ্বের সবচেয়ে দীর্ঘতম প্রাকৃতিক সমুদ্র সৈকত কোনটি?", options: ["কক্সবাজার", "কুয়াকাটা"], correct: 0 },
+        { question: "বাংলাদেশের সবচেয়ে ছোট প্রশাসনিক বিভাগ কোনটি?", options: ["ময়মনসিংহ", "সিলেট"], correct: 0 },
+        { question: "বাংলাদেশ কত সালে জাতিসংঘের সদস্যপদ লাভ করে?", options: ["১৯৭৪ সালে", "১৯৭২ সালে"], correct: 0 },
+        { question: "মানবদেহের বৃহত্তম অঙ্গ কোনটি?", options: ["ত্বক (Skin)", "যকৃৎ (Liver)"], correct: 0 },
+        { question: "নোবেল পুরস্কার প্রদান শুরু হয় কত সাল থেকে?", options: ["১৯০১ সাল", "১৯০৫ সাল"], correct: 0 },
+        { question: "মহাকাশে পাঠানো প্রথম কৃত্রিম উপগ্রহ কোনটি?", options: ["স্পুটনিক-১", "অ্যাপোলো-১১"], correct: 0 },
+        { question: "কম্পিউটারের অস্থায়ী মেমোরি (Temporary Memory) কোনটি?", options: ["RAM", "ROM"], correct: 0 },
+        { question: "সূর্যের আলোর কোন রশ্মি থেকে ভিটামিন ডি পাওয়া যায়?", options: ["অতিবেগুনি রশ্মি (Ultraviolet)", "ইনফ্রারেড রশ্মি"], correct: 0 }
     ];
 
     let currentQuestionIndex = 0;
@@ -172,14 +125,14 @@
         optionsContainer.innerHTML = '';
         const currentQuiz = quizData[currentQuestionIndex];
         
-        questionEl.innerText = `${currentQuestionIndex + 1}. ${currentQuiz.question}`;
-        quizCountEl.innerText = `${currentQuestionIndex + 1}/${quizData.length}`;
+        questionEl.innerText = (currentQuestionIndex + 1) + ". " + currentQuiz.question;
+        quizCountEl.innerText = (currentQuestionIndex + 1) + "/" + quizData.length;
 
         currentQuiz.options.forEach((option, index) => {
             const button = document.createElement('button');
             button.innerText = option;
             button.classList.add('option-btn');
-            button.onclick = () => selectOption(index);
+            button.onclick = function() { selectOption(index); };
             optionsContainer.appendChild(button);
         });
     }
@@ -195,9 +148,10 @@
             alert("ভুল উত্তর! সঠিক উত্তর ছিল: " + currentQuiz.options[currentQuiz.correct]);
         }
 
-        // প্রতি ৫টি কুইজ পর পর অটো বিজ্ঞাপন পপআপ
+        // প্রতি ৫টি কুইজ পর পর স্বয়ংক্রিয়ভাবে Monetag অ্যাড খুলবে
         if ((currentQuestionIndex + 1) % 5 === 0) {
-            showAd();
+            alert("অফার সম্পন্ন করতে বিজ্ঞাপনটি দেখুন এবং ৫০ পয়েন্ট পান!");
+            openMonetagAd();
         }
 
         currentQuestionIndex++;
@@ -210,21 +164,21 @@
         }
     }
 
-    function showAd() {
-        if (AdController) {
-            AdController.show().then((result) => {
-                score += 50;
-                scoreEl.innerText = score;
-                alert("বিজ্ঞাপন সফলভাবে দেখেছেন! ৫০ পয়েন্ট যুক্ত হলো।");
-            }).catch((result) => {
-                console.log("Ad Error or closed: ", result);
-            });
+    // Monetag Direct Link অন করার ফাংশন
+    function openMonetagAd() {
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+            window.Telegram.WebApp.openLink(MONETAG_DIRECT_LINK);
+        } else {
+            window.open(MONETAG_DIRECT_LINK, '_blank');
         }
+        score += 50;
+        scoreEl.innerText = score;
     }
 
-    loadQuiz();
+    window.onload = function() {
+        loadQuiz();
+    };
 </script>
 
 </body>
 </html>
-         
