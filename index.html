@@ -9,7 +9,6 @@
     <!-- Adsgram SDK -->
     <script src="https://sad.adsgram.ai/js/sad-index.js"></script>
     <style>
-        /* ব্যাকগ্রাউন্ড যাতে সবসময় ব্রাইট ও সাদা থাকে */
         html, body {
             background-color: #f4f6f9 !important;
             color: #222222 !important;
@@ -33,6 +32,7 @@
             margin-top: 0;
             color: #1a1a1a;
             font-size: 22px;
+            text-align: center;
         }
 
         .balance-box {
@@ -44,6 +44,7 @@
             font-size: 18px;
             font-weight: 700;
             margin-bottom: 20px;
+            text-align: center;
         }
 
         .quiz-title {
@@ -70,23 +71,15 @@
             width: 100%;
             margin: 6px 0;
             font-weight: 600;
-            transition: background 0.2s;
-        }
-
-        .btn:active {
-            opacity: 0.85;
         }
 
         .btn-quiz-opt {
             background-color: #ffffff !important;
             color: #333333 !important;
             border: 1px solid #cccccc;
-            text-align: left;
-            padding-left: 15px;
-        }
-
-        .btn-quiz-opt:hover {
-            background-color: #f0f0f0 !important;
+            text-align: center;
+            padding: 12px;
+            font-size: 16px;
         }
 
         .btn-bonus {
@@ -113,7 +106,6 @@
             font-size: 14px;
             background-color: #ffffff !important;
             color: #333333 !important;
-            box-sizing: border-radius;
             box-sizing: border-box;
         }
 
@@ -134,7 +126,7 @@
         ব্যালেন্স: <span id="user-points">0</span> পয়েন্ট
     </div>
 
-    <!-- কুইজ অপশন -->
+    <!-- কুইজ সেকশন -->
     <div id="quiz-section">
         <div class="quiz-title" id="quiz-number">কুইজ নং: ১ / ১০</div>
         <div class="question-text" id="question-text">প্রশ্ন লোড হচ্ছে...</div>
@@ -168,35 +160,29 @@
 </div>
 
 <script>
-    // Telegram WebApp Expand & Theme Fix
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-    }
-
     let points = 0;
     let currentQuizIndex = 0;
 
     // Adsgram Controller Integration
     const AdController = window.Adsgram.init({ blockId: "44878" });
 
-    // ১০টি কুইজের তালিকা
+    // ১০টি নির্দিষ্ট কুইজ (প্রতিটিতে মাত্র ২টি করে অপশন)
     const quizzes = [
-        { q: "১. বাংলাদেশের রাজধানী কোনটি?", options: ["ঢাকা", "চট্টগ্রাম", "সিলেট"], ans: 0 },
-        { q: "২. ৫ + ৫ = কত?", options: ["৮", "১০", "১২"], ans: 1 },
-        { q: "৩. আমাদের জাতীয় ফুল কোনটি?", options: ["গোলাপ", "শাপলা", "বেলি"], ans: 1 },
-        { q: "৪. ১০ - ৩ = কত?", options: ["৭", "৬", "৫"], ans: 0 },
-        { q: "৫. আমাদের জাতীয় ফল কোনটি?", options: ["আম", "লিচু", "কাঁঠাল"], ans: 2 },
-        { q: "৬. ৮ x ২ = কত?", options: ["১৪", "১৬", "১৮"], ans: 1 },
-        { q: "৭. সপ্তাহের শেষ দিন কোনটি?", options: ["শুক্রবার", "শনিবার", "রবিবার"], ans: 0 },
-        { q: "৮. ১৫ / ৩ = কত?", options: ["৪", "৫", "৬"], ans: 1 },
-        { q: "৯. বাংলা বর্ণমালায় স্বরবর্ণ কয়টি?", options: ["১১টি", "৩৯টি", "৫০টি"], ans: 0 },
-        { q: "১০. ১০০ + ২০০ = কত?", options: ["২৫০", "৩০০", "৩৫০"], ans: 1 }
+        { q: "১. আমাদের দেশের নাম কি?", options: ["বাংলাদেশ", "ভারত"], ans: 0 },
+        { q: "২. বাংলাদেশের রাজধানী কোনটি?", options: ["ঢাকা", "কলকাতা"], ans: 0 },
+        { q: "৩. ৫ + ৫ = কত?", options: ["৮", "১০"], ans: 1 },
+        { q: "৪. আমাদের জাতীয় ফুল কোনটি?", options: ["শাপলা", "গোলাপ"], ans: 0 },
+        { q: "৫. ১০ - ৩ = কত?", options: ["৭", "৫"], ans: 0 },
+        { q: "৬. আমাদের জাতীয় ফল কোনটি?", options: ["আম", "কাঁঠাল"], ans: 1 },
+        { q: "৭. ৮ x ২ = কত?", options: ["১৬", "১৮"], ans: 0 },
+        { q: "৮. সপ্তাহের শেষ দিন কোনটি?", options: ["শুক্রবার", "রবিবার"], ans: 0 },
+        { q: "৯. ১৫ / ৩ = কত?", options: ["৪", "৫"], ans: 1 },
+        { q: "১০. ১০০ + ২০০ = কত?", options: ["৩০০", "৩৫০"], ans: 0 }
     ];
 
     function loadQuiz() {
         if (currentQuizIndex >= quizzes.length) {
-            currentQuizIndex = 0;
+            currentQuizIndex = 0; // ১০টি শেষ হলে আবার ১ নম্বর থেকে শুরু হবে
         }
         
         const qData = quizzes[currentQuizIndex];
@@ -222,18 +208,18 @@
             points += 10;
             document.getElementById('user-points').innerText = points;
             alert('সঠিক উত্তর! ১০ পয়েন্ট যোগ হয়েছে।');
-            
-            // কুইজের পর ১০ সেকেন্ডের Adsgram ভিডিও
-            AdController.show().then(() => {
-                currentQuizIndex++;
-                loadQuiz();
-            }).catch(() => {
-                currentQuizIndex++;
-                loadQuiz();
-            });
         } else {
-            alert('ভুল উত্তর! আবার চেষ্টা করুন।');
+            alert('ভুল উত্তর! কোনো পয়েন্ট যোগ হয়নি।');
         }
+
+        // উত্তর সঠিক বা ভুল যা-ই হোক, অ্যাড চালু হবে
+        AdController.show().then(() => {
+            currentQuizIndex++;
+            loadQuiz();
+        }).catch(() => {
+            currentQuizIndex++;
+            loadQuiz();
+        });
     }
 
     function showBonusAd() {
@@ -264,8 +250,14 @@
         document.getElementById('user-points').innerText = points;
     }
 
-    // প্রথম কুইজ লোড
-    loadQuiz();
+    // স্ক্রিন লোড হওয়ামাত্র কুইজ চালু করার জন্য
+    document.addEventListener("DOMContentLoaded", function() {
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+        loadQuiz();
+    });
 </script>
 </body>
-</html>
+    </html>
