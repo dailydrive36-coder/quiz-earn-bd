@@ -5,19 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuizEarn BD</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; text-align: center; padding: 15px; margin: 0; }
-        .card { background: #1e293b; padding: 20px; border-radius: 12px; max-width: 400px; margin: 10px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .score-box { background: #334155; padding: 10px; border-radius: 8px; font-size: 18px; color: #f59e0b; margin-bottom: 15px; font-weight: bold; }
-        .btn { background: #22c55e; color: white; border: none; padding: 12px 20px; border-radius: 8px; margin: 8px 0; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: 0.2s; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e293b; color: white; margin: 0; padding: 20px; text-align: center; }
+        .card { background: #1e293b; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); max-width: 400px; margin: 0 auto; }
+        .score-box { background: #334155; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; }
+        .btn { background: #22c55e; color: white; border: none; padding: 12px 20px; margin: 8px 0; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%; font-weight: bold; }
         .btn:hover { background: #16a34a; }
         .withdraw-btn { background: #eab308; color: black; }
-        
+
         /* Ad Overlay Styling */
-        #ad-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-        .ad-box { background: #1e293b; padding: 20px; border-radius: 10px; border: 2px solid #3b82f6; width: 80%; max-width: 320px; }
+        #ad-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000; }
+        .ad-box { background: #1e293b; padding: 25px; border-radius: 12px; text-align: center; max-width: 300px; width: 80%; border: 1px solid #334155; }
         .timer { font-size: 14px; color: #94a3b8; margin-top: 10px; }
     </style>
 </head>
@@ -26,7 +25,7 @@
     <div class="card">
         <h2>QuizEarn BD</h2>
         <div class="score-box">আপনার পয়েন্ট: <span id="pts">0</span></div>
-        
+
         <h3 id="q-text">প্রশ্ন লোড হচ্ছে...</h3>
         <div id="options"></div>
 
@@ -34,67 +33,37 @@
         <button class="btn withdraw-btn" onclick="openWithdraw()">টাকা তুলুন (Withdraw)</button>
     </div>
 
-    <!-- 5 Second Ad Modal -->
-    <div id="ad-modal">
-        <div class="ad-box">
-            <h3 style="color: #3b82f6;">বিজ্ঞাপন (Sponsored Ad)</h3>
-            <p style="font-size: 14px;">বিজ্ঞাপনটি দেখুন এবং পয়েন্ট অর্জন করুন...</p>
-            <div style="background: #334155; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
-                <span>Ad Banner Placeholder</span>
-            </div>
-            <div class="timer">বিজ্ঞাপন বন্ধ হতে বাকি: <b id="ad-timer" style="color:#ef4444;">5</b> সেকেন্ড</div>
-        </div>
-    </div>
-
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-
         let p = 0;
-        let currentQ = 0;
-
-        const quizData = [
-            { q: "বাংলাদেশের রাজধানী কোথায়?", opts: ["ঢাকা", "চট্টগ্রাম", "সিলেট", "খুলনা"], ans: 0 },
-            { q: "বাংলাদেশের জাতীয় ফুল কোনটি?", opts: ["গোলাপ", "শাপলা", "কদম", "জবা"], ans: 1 },
-            { q: "বাংলাদেশের জাতীয় ফল কোনটি?", opts: ["আম", "কলা", "কাঁঠাল", "লিচু"], ans: 2 },
-            { q: "কম্পিউটারের মস্তিষ্ক কাকে বলা হয়?", opts: ["RAM", "CPU", "Hard Disk", "Monitor"], ans: 1 },
-            { q: "বিশ্বের বৃহত্তম মহাসাগর কোনটি?", opts: ["আটলান্টিক", "ভারত", "প্রশান্ত মহাসাগর", "উত্তর"], ans: 2 }
-        ];
 
         function loadQuestion() {
-            if (currentQ < quizData.length) {
-                let q = quizData[currentQ];
-                document.getElementById('q-text').innerText = `প্রশ্ন ${currentQ + 1}: ` + q.q;
-                let optHtml = '';
-                q.opts.forEach((opt, idx) => {
-                    optHtml += `<button class="btn" onclick="handleAnswer(${idx})">${opt}</button>`;
-                });
-                document.getElementById('options').innerHTML = optHtml;
-            } else {
-                document.getElementById('q-text').innerText = "আজকের সব কুইজ শেষ! নতুন কুইজ আসার জন্য অপেক্ষা করুন।";
-                document.getElementById('options').innerHTML = '';
-            }
-        }
-
-        function handleAnswer(selected) {
-            let isCorrect = selected === quizData[currentQ].ans;
+            document.getElementById('q-text').innerText = "বাংলাদেশের রাজধানী কোথায়?";
+            const opts = document.getElementById('options');
+            opts.innerHTML = '';
             
-            showAd(() => {
-                if (isCorrect) {
-                    p += 10;
-                    document.getElementById('pts').innerText = p;
-                    alert('সঠিক উত্তর! +১০ পয়েন্ট অর্জন করেছেন।');
-                } else {
-                    alert('ভুল উত্তর! আবার চেষ্টা করুন।');
-                }
-                currentQ++;
-                loadQuestion();
-            });
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = 'ঢাকা';
+            btn.onclick = function() {
+                p += 10;
+                document.getElementById('pts').innerText = p;
+                alert('সঠিক উত্তর! ১০ পয়েন্ট যোগ হয়েছে।');
+            };
+            opts.appendChild(btn);
         }
 
-        function showAd(callback) {
-            let modal = document.getElementById('ad-modal');
-            let timerEl = document.getElementById('ad-timer');
+        function showTimerModal(callback) {
+            const modal = document.createElement('div');
+            modal.id = 'ad-modal';
+            modal.innerHTML = `
+                <div class="ad-box">
+                    <h3>বিজ্ঞাপন দেখানো হচ্ছে...</h3>
+                    <p class="timer">অনুগ্রহ করে <span id="ad-timer">5</span> সেকেন্ড অপেক্ষা করুন</p>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            const timerEl = document.getElementById('ad-timer');
             let timeLeft = 5;
 
             modal.style.display = 'flex';
@@ -114,11 +83,11 @@
 
         function openWithdraw() {
             if (p < 100) {
-                alert('উইথড্র করতে সর্বনিম্ন ১০০ পয়েন্ট লাগবে। আপনার বর্তমান পয়েন্ট: ' + p);
+                alert('উইথড্র করতে সর্বনিম্ন ১০০ পয়েন্ট লাগবে।');
             } else {
-                let number = prompt('টাকা নিতে আপনার বিকাশ বা নগদ নম্বর লিখুন:');
+                let number = prompt('টাকা নিতে আপনার বিকাশ/নগদ নম্বর দিন:');
                 if (number) {
-                    alert('আপনার উইথড্র রিকোয়েস্ট জমা হয়েছে! পয়েন্ট শীঘ্রই কেটে নেওয়া হবে।');
+                    alert('আপনার উইথড্র রিকোয়েস্ট জমা হয়েছে!');
                     p = 0;
                     document.getElementById('pts').innerText = p;
                 }
@@ -126,15 +95,17 @@
         }
 
         loadQuestion();
+
+        // Adsgram Ad Integration
         const AdController = window.Adsgram.init({ blockId: "44859" });
 
-function showAd() {
-    AdController.show().then((result) => {
-        alert("বিজ্ঞাপন দেখা সম্পন্ন হয়েছে! পয়েন্ট যোগ করা হলো।");
-    }).catch((error) => {
-        console.log("Ad error or closed:", error);
-    });
-}
+        function showAd() {
+            AdController.show().then((result) => {
+                alert("বিজ্ঞাপন দেখা সম্পন্ন হয়েছে! পয়েন্ট যোগ করা হলো।");
+            }).catch((error) => {
+                console.log("Ad error or closed:", error);
+            });
+        }
     </script>
 </body>
-</html>
+</html>bAp
