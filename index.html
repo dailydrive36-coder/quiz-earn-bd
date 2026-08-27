@@ -3,322 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Earn BD</title>
+    <title>QuizEarn BD</title>
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Adsgram SDK -->
+    <script src="https://sad.adsgram.ai/js/sad-index.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1c2733;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
+        /* ব্যাকগ্রাউন্ড যাতে সবসময় ব্রাইট ও সাদা থাকে */
+        html, body {
+            background-color: #f4f6f9 !important;
+            color: #222222 !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            user-select: none;
+            padding: 12px;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            background-color: #24303f;
+
+        .card {
+            background: #ffffff !important;
+            border-radius: 16px;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            max-width: 420px;
+            margin: 0 auto;
+            border: 1px solid #e1e8ed;
         }
-        .score-board {
+
+        h2 {
+            margin-top: 0;
+            color: #1a1a1a;
+            font-size: 22px;
+        }
+
+        .balance-box {
+            background: #eef7ff !important;
+            border: 1px solid #bce0fd;
+            color: #0056b3 !important;
+            padding: 12px;
+            border-radius: 10px;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .quiz-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111;
             margin-bottom: 15px;
-            background: #17212b;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #2b5278;
         }
-        .question-box {
-            font-size: 18px;
-            margin-bottom: 20px;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #17212b;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .option-btn {
-            background-color: #2b5278;
-            color: white;
+
+        .btn {
+            background-color: #28a745;
+            color: #ffffff !important;
             border: none;
             padding: 12px;
             font-size: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-        }
-        .option-btn:active {
-            transform: scale(0.98);
-        }
-        .option-btn:hover {
-            background-color: #3b6e9e;
-        }
-        .ad-btn {
-            background-color: #0088cc;
-            color: white;
-            border: none;
-            padding: 14px;
-            font-size: 16px;
-            font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            margin: 6px 0;
+            font-weight: 600;
+            transition: background 0.2s;
         }
-        .ad-btn:hover {
-            background-color: #00aaff;
-        }
-        .withdraw-section {
-            background-color: #17212b;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border: 1px solid #2b5278;
-        }
-        .withdraw-section input {
-            width: 85%;
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 6px;
-            border: 1px solid #2b5278;
-            background: #24303f;
-            color: #fff;
-            text-align: center;
-            font-size: 15px;
-        }
-        .withdraw-btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .withdraw-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-        }
-        .bkash-btn { background-color: #e2136e; }
-        .nagad-btn { background-color: #f7921e; }
 
-        /* পপআপ টাইমার স্টাইল */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        .btn:active {
+            opacity: 0.85;
         }
-        .modal-box {
-            background: #24303f;
-            padding: 25px;
-            border-radius: 12px;
-            max-width: 300px;
-            width: 80%;
-            box-shadow: 0 0 15px rgba(0, 136, 204, 0.5);
+
+        .btn-quiz-opt {
+            background-color: #ffffff !important;
+            color: #333333 !important;
+            border: 1px solid #cccccc;
+            text-align: left;
+            padding-left: 15px;
         }
-        .timer-text {
-            font-size: 32px;
-            color: #00aaff;
-            font-weight: bold;
-            margin: 15px 0;
+
+        .btn-quiz-opt:hover {
+            background-color: #f0f0f0 !important;
+        }
+
+        .btn-bonus {
+            background-color: #ff9800 !important;
+        }
+
+        .btn-withdraw {
+            background-color: #007bff !important;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: #e8e8e8;
+            margin: 20px 0;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 6px 0 12px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #ffffff !important;
+            color: #333333 !important;
+            box-sizing: border-radius;
+            box-sizing: border-box;
+        }
+
+        .sub-text {
+            font-size: 12px;
+            color: #777;
+            margin-top: -5px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="card">
     <h2>QuizEarn BD</h2>
     
-    <div class="score-board">
-        পয়েন্ট: <span id="score">0</span> | কুইজ: <span id="quiz-count">1</span>
+    <div class="balance-box">
+        ব্যালেন্স: <span id="user-points">0</span> পয়েন্ট
     </div>
 
-    <div class="question-box" id="question">
-        প্রশ্ন লোড হচ্ছে...
+    <!-- কুইজ অপশন -->
+    <div id="quiz-section">
+        <div class="quiz-title" id="quiz-number">কুইজ নং: ১ / ১০</div>
+        <div class="question-text" id="question-text">প্রশ্ন লোড হচ্ছে...</div>
+        <div id="options-container"></div>
     </div>
 
-    <div class="options-grid" id="options-container"></div>
+    <hr>
 
-    <!-- ৫০ পয়েন্টের বিজ্ঞাপনের জন্য ১৫ সেকেন্ডের কাউন্টডাউন -->
-    <button class="ad-btn" onclick="startAdTimer(15, 50, 'স্পেশাল রিওয়ার্ড অ্যাড 🎁', 'বিজ্ঞাপনটি ১৫ সেকেন্ড দেখুন এবং ৫০ পয়েন্ট পান!')">বিজ্ঞাপন দেখুন (৫০ পয়েন্ট)</button>
-
-    <!-- উইথড্র সেকশন -->
-    <div class="withdraw-section">
-        <h3>টাকা উত্তোলন (Withdraw)</h3>
-        <p style="font-size: 12px; color: #aaa;">সর্বনিম্ন ২০০০ পয়েন্ট = ১০০ টাকা</p>
-        <input type="number" id="phone-number" placeholder="মোবাইল নম্বর লিখুন">
-        <div class="withdraw-btn-group">
-            <button class="withdraw-btn bkash-btn" onclick="requestWithdraw('bKash')">বিকাশ (bKash)</button>
-            <button class="withdraw-btn nagad-btn" onclick="requestWithdraw('Nagad')">নগদ (Nagad)</button>
-        </div>
+    <!-- ভিডিও বোনাস -->
+    <div>
+        <h4 style="margin: 0 0 5px 0;">বোনাস টাস্ক</h4>
+        <div class="sub-text">অ্যাড দেখে বোনাস পয়েন্ট অর্জন করুন</div>
+        <button class="btn btn-bonus" onclick="showBonusAd()">২০ সেকেন্ডের ভিডিও (১৫ পয়েন্ট)</button>
     </div>
-</div>
 
-<!-- সেফ পপআপ টাইমার -->
-<div class="modal-overlay" id="adModal">
-    <div class="modal-box">
-        <h3 id="modal-title">বিজ্ঞাপন লোড হচ্ছে...</h3>
-        <p id="modal-desc" style="font-size: 14px; color: #ccc;">অপেক্ষা করুন</p>
-        <div class="timer-text" id="countdown">5</div>
+    <hr>
+
+    <!-- উইথড্র অপশন -->
+    <div>
+        <h4 style="margin: 0 0 5px 0;">টাকা উত্তোলন</h4>
+        <div class="sub-text">সর্বনিম্ন উইথড্র: ৩,০০০ পয়েন্ট = ৫০ টাকা</div>
+        
+        <select id="method">
+            <option value="bKash">বিকাশ (bKash)</option>
+            <option value="Nagad">নগদ (Nagad)</option>
+        </select>
+        
+        <input type="number" id="phone" placeholder="নম্বর দিন (যেমন: 017XXXXXXXX)">
+        <button class="btn btn-withdraw" onclick="withdraw()">উইথড্র করুন</button>
     </div>
 </div>
 
 <script>
+    // Telegram WebApp Expand & Theme Fix
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand(); // টেলিগ্রাম ফুলস্ক্রিন করা
+        window.Telegram.WebApp.expand();
     }
 
-    const MONETAG_DIRECT_LINK = "https://omg10.com/4/11670353";
+    let points = 0;
+    let currentQuizIndex = 0;
 
-    const quizData = [
-        { question: "বাংলাদেশের একমাত্র প্রবাল দ্বীপ কোনটি?", options: ["সেন্ট মার্টিন", "মহেশখালী"], correct: 0 },
-        { question: "সংবিধান অনুযায়ী বাংলাদেশের আইনসভার নাম কি?", options: ["জাতীয় সংসদ", "গণপরিষদ"], correct: 0 },
-        { question: "বিশ্বের সবচেয়ে দীর্ঘতম প্রাকৃতিক সমুদ্র সৈকত কোনটি?", options: ["কক্সবাজার", "কুয়াকাটা"], correct: 0 },
-        { question: "বাংলাদেশের সবচেয়ে ছোট প্রশাসনিক বিভাগ কোনটি?", options: ["ময়মনসিংহ", "সিলেট"], correct: 0 },
-        { question: "বাংলাদেশ কত সালে জাতিসংঘের সদস্যপদ লাভ করে?", options: ["১৯৭৪ সালে", "১৯৭২ সালে"], correct: 0 },
-        { question: "মানবদেহের বৃহত্তম অঙ্গ কোনটি?", options: ["ত্বক (Skin)", "যকৃৎ (Liver)"], correct: 0 },
-        { question: "নোবেল पुरस्कार প্রদান শুরু হয় কত সাল থেকে?", options: ["১৯০১ সাল", "১৯০৫ সাল"], correct: 0 },
-        { question: "মহাকাশে পাঠানো প্রথম কৃত্রিম উপগ্রহ কোনটি?", options: ["স্পুটনিক-১", "অ্যাপোলো-১১"], correct: 0 },
-        { question: "কম্পিউটারের অস্থায়ী মেমোরি (Temporary Memory) কোনটি?", options: ["RAM", "ROM"], correct: 0 },
-        { question: "সূর্যের আলোর কোন রশ্মি থেকে ভিটামিন ডি পাওয়া যায়?", options: ["অতিবেগুনি রশ্মি (Ultraviolet)", "ইনফ্রারেড রশ্মি"], correct: 0 }
+    // Adsgram Controller Integration
+    const AdController = window.Adsgram.init({ blockId: "44878" });
+
+    // ১০টি কুইজের তালিকা
+    const quizzes = [
+        { q: "১. বাংলাদেশের রাজধানী কোনটি?", options: ["ঢাকা", "চট্টগ্রাম", "সিলেট"], ans: 0 },
+        { q: "২. ৫ + ৫ = কত?", options: ["৮", "১০", "১২"], ans: 1 },
+        { q: "৩. আমাদের জাতীয় ফুল কোনটি?", options: ["গোলাপ", "শাপলা", "বেলি"], ans: 1 },
+        { q: "৪. ১০ - ৩ = কত?", options: ["৭", "৬", "৫"], ans: 0 },
+        { q: "৫. আমাদের জাতীয় ফল কোনটি?", options: ["আম", "লিচু", "কাঁঠাল"], ans: 2 },
+        { q: "৬. ৮ x ২ = কত?", options: ["১৪", "১৬", "১৮"], ans: 1 },
+        { q: "৭. সপ্তাহের শেষ দিন কোনটি?", options: ["শুক্রবার", "শনিবার", "রবিবার"], ans: 0 },
+        { q: "৮. ১৫ / ৩ = কত?", options: ["৪", "৫", "৬"], ans: 1 },
+        { q: "৯. বাংলা বর্ণমালায় স্বরবর্ণ কয়টি?", options: ["১১টি", "৩৯টি", "৫০টি"], ans: 0 },
+        { q: "১০. ১০০ + ২০০ = কত?", options: ["২৫০", "৩০০", "৩৫০"], ans: 1 }
     ];
 
-    let currentQuestionIndex = 0;
-    let score = 0;
-
-    const questionEl = document.getElementById('question');
-    const optionsContainer = document.getElementById('options-container');
-    const scoreEl = document.getElementById('score');
-    const quizCountEl = document.getElementById('quiz-count');
-    const adModal = document.getElementById('adModal');
-    const countdownEl = document.getElementById('countdown');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDesc = document.getElementById('modal-desc');
-
     function loadQuiz() {
-        optionsContainer.innerHTML = '';
-        const currentQuiz = quizData[currentQuestionIndex];
+        if (currentQuizIndex >= quizzes.length) {
+            currentQuizIndex = 0;
+        }
         
-        questionEl.innerText = (currentQuestionIndex + 1) + ". " + currentQuiz.question;
-        quizCountEl.innerText = (currentQuestionIndex + 1) + "/" + quizData.length;
-
-        currentQuiz.options.forEach((option, index) => {
-            const button = document.createElement('button');
-            button.innerText = option;
-            button.classList.add('option-btn');
-            button.onclick = function() { selectOption(index); };
-            optionsContainer.appendChild(button);
+        const qData = quizzes[currentQuizIndex];
+        document.getElementById('quiz-number').innerText = `কুইজ নং: ${currentQuizIndex + 1} / ১০`;
+        document.getElementById('question-text').innerText = qData.q;
+        
+        const optionsDiv = document.getElementById('options-container');
+        optionsDiv.innerHTML = '';
+        
+        qData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-quiz-opt';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index);
+            optionsDiv.appendChild(btn);
         });
     }
 
-    function selectOption(selectedIndex) {
-        const currentQuiz = quizData[currentQuestionIndex];
+    function checkAnswer(selectedIndex) {
+        const correctIndex = quizzes[currentQuizIndex].ans;
         
-        if (selectedIndex === currentQuiz.correct) {
-            score += 10;
-            scoreEl.innerText = score;
-            // সঠিক উত্তরে ৫ সেকেন্ডের সেফ পপআপ
-            startAdTimer(5, 0, 'সঠিক উত্তর! 🎉', 'বিজ্ঞাপনটি দেখতে ৫ সেকেন্ড অপেক্ষা করুন...');
+        if (selectedIndex === correctIndex) {
+            points += 10;
+            document.getElementById('user-points').innerText = points;
+            alert('সঠিক উত্তর! ১০ পয়েন্ট যোগ হয়েছে।');
+            
+            // কুইজের পর ১০ সেকেন্ডের Adsgram ভিডিও
+            AdController.show().then(() => {
+                currentQuizIndex++;
+                loadQuiz();
+            }).catch(() => {
+                currentQuizIndex++;
+                loadQuiz();
+            });
         } else {
-            alert("ভুল উত্তর! সঠিক উত্তর ছিল: " + currentQuiz.options[currentQuiz.correct]);
-            nextQuestion();
+            alert('ভুল উত্তর! আবার চেষ্টা করুন।');
         }
     }
 
-    // কাউন্টডাউন ও বিজ্ঞাপন প্রদর্শন লজিক
-    function startAdTimer(seconds, rewardPoints, titleText, descText) {
-        let timeLeft = seconds;
-        countdownEl.innerText = timeLeft;
-        modalTitle.innerText = titleText;
-        modalDesc.innerText = descText;
-        adModal.style.display = 'flex';
-
-        const timer = setInterval(() => {
-            timeLeft--;
-            countdownEl.innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                adModal.style.display = 'none';
-                triggerMonetagAd(rewardPoints);
-                if(rewardPoints === 0) {
-                    nextQuestion();
-                }
-            }
-        }, 1000);
+    function showBonusAd() {
+        AdController.show().then(() => {
+            points += 15;
+            document.getElementById('user-points').innerText = points;
+            alert('ধন্যবাদ! ভিডিও দেখার জন্য ১৫ পয়েন্ট যোগ হয়েছে।');
+        }).catch(() => {
+            alert('ভিডিওটি সম্পূর্ণ দেখতে হবে।');
+        });
     }
 
-    function nextQuestion() {
-        currentQuestionIndex++;
-        if (currentQuestionIndex < quizData.length) {
-            loadQuiz();
-        } else {
-            currentQuestionIndex = 0;
-            loadQuiz();
+    function withdraw() {
+        const phone = document.getElementById('phone').value;
+        const method = document.getElementById('method').value;
+
+        if (points < 3000) {
+            alert('পয়েন্ট অপর্যাপ্ত! উইথড্র করতে কমপক্ষে ৩,০০০ পয়েন্ট প্রয়োজন।');
+            return;
         }
-    }
-
-    // নিরাপদ মনিট্যাগ লিংক ওপেনিং
-    function triggerMonetagAd(bonusPoints = 0) {
-        if(bonusPoints > 0) {
-            score += bonusPoints;
-            scoreEl.innerText = score;
-        }
-
-        try {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-                window.Telegram.WebApp.openLink(MONETAG_DIRECT_LINK);
-            } else {
-                window.open(MONETAG_DIRECT_LINK, '_blank');
-            }
-        } catch(e) {
-            console.log("Ad Direct Link Error", e);
-        }
-    }
-
-    // ২০০০ পয়েন্ট উইথড্র লজিক
-    function requestWithdraw(method) {
-        const phone = document.getElementById('phone-number').value;
-
-        if (!phone || phone.length < 11) {
-            alert("দয়া করে ১১ ডিজিটের সঠিক মোবাইল নম্বর লিখুন!");
+        if (phone.length !== 11) {
+            alert('দয়া করে ১১ ডিজিটের সঠিক মোবাইল নম্বর দিন।');
             return;
         }
 
-        if (score < 2000) {
-            alert("আপনার পর্যাপ্ত পয়েন্ট নেই! সর্বনিম্ন ২০০০ পয়েন্ট লাগবে।");
-            return;
-        }
-
-        score -= 2000;
-        scoreEl.innerText = score;
-        alert(`আপনার ${method} উইথড্র রিকোয়েস্ট সফল হয়েছে!\nনম্বর: ${phone}\n২০০০ পয়েন্ট কেটে নেয়া হয়েছে।`);
-        document.getElementById('phone-number').value = '';
+        alert(`আপনার ${method} নম্বর (${phone})-এ ৫০ টাকা উইথড্র রিকোয়েস্ট সফলভাবে জমা হয়েছে!`);
+        points -= 3000;
+        document.getElementById('user-points').innerText = points;
     }
 
-    window.onload = function() {
-        loadQuiz();
-    };
+    // প্রথম কুইজ লোড
+    loadQuiz();
 </script>
-
 </body>
-            </html>
+</html>
